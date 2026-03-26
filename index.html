@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>史東的建築亂拍地圖</title>
+
+    <!-- Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+
+    <!-- EXIF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exif-js/2.3.0/exif.js"></script>
+
+    <!-- MarkerCluster -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.js"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="for_gemini.css">
+</head>
+<body>
+
+    <!-- ===== HEADER ===== -->
+    <header class="site-header">
+        <div class="header-inner">
+            <div class="header-title-group">
+                <span class="header-icon">🗺️</span>
+                <div>
+                    <h1 class="header-title">史東的建築亂拍地圖</h1>
+                    <p class="header-subtitle">記錄金門、台灣的花磚、洋樓與歷史建築</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== MAIN LAYOUT ===== -->
+    <div class="app-layout">
+
+        <!-- 地圖區塊 -->
+        <div class="map-section">
+            <!-- 篩選器 -->
+            <div class="filter-bar">
+                <span class="filter-label">篩選類別：</span>
+                <div class="filter-buttons">
+                    <button class="filter-btn" data-value="花磚＆裝飾">🌸 花磚＆裝飾</button>
+                    <button class="filter-btn" data-value="洋樓＆房舍">🏠 洋樓＆房舍</button>
+                    <button class="filter-btn" data-value="風獅爺">🦁 風獅爺</button>
+                    <button class="filter-btn" data-value="軍事">⚔️ 軍事</button>
+                    <button class="filter-btn" data-value="其他">📌 其他</button>
+                    <button class="filter-btn" data-value="未分類">🗂️ 未分類</button>
+                </div>
+            </div>
+
+            <div id="map"></div>
+
+            <!-- 隱藏的功能按鈕 -->
+            <button id="clearMarkers" style="display:none;">清除所有標記</button>
+            <button id="reloadGitHubData" style="display:none;">重新載入 GitHub JSON</button>
+        </div>
+
+        <!-- 照片列表 -->
+        <div class="list-section">
+            <div class="list-header">
+                <span class="list-title">📸 照片列表</span>
+                <span class="list-count" id="photoCount">載入中…</span>
+            </div>
+            <div id="photoList"></div>
+        </div>
+
+    </div>
+
+    <!-- ===== IMAGE MODAL ===== -->
+    <div id="imageModal" class="modal" style="display:none;">
+        <span class="close">&times;</span>
+        <img class="modal-content" id="fullImage">
+    </div>
+
+    <script src="for_gemini.js"></script>
+</body>
+</html>
