@@ -1,25 +1,21 @@
 /* =============================================
    CSS 變數 & 重置
    ============================================= */
-:root {
+   :root {
     --color-bg: #f5f2ed;
     --color-surface: #ffffff;
     --color-header-bg: #1a1a2e;
     --color-header-text: #f0e6d3;
     --color-accent: #c0392b;
-    --color-accent-hover: #962d22;
     --color-text: #2c2c2c;
     --color-text-muted: #777;
     --color-border: #e0d8cc;
-    --color-filter-active-bg: #1a1a2e;
-    --color-filter-active-text: #fff;
     --radius-sm: 6px;
     --radius-md: 10px;
-    --radius-lg: 14px;
-    --shadow-sm: 0 2px 6px rgba(0,0,0,0.08);
     --shadow-md: 0 4px 16px rgba(0,0,0,0.13);
     --font-serif: 'Noto Serif TC', serif;
     --font-sans: 'Noto Sans TC', sans-serif;
+    --header-h: 68px;
 }
 
 *, *::before, *::after {
@@ -28,11 +24,11 @@
     padding: 0;
 }
 
-body {
+html, body {
     font-family: var(--font-sans);
     background: var(--color-bg);
     color: var(--color-text);
-    min-height: 100vh;
+    height: 100%;
 }
 
 /* =============================================
@@ -41,50 +37,48 @@ body {
 .site-header {
     background: var(--color-header-bg);
     color: var(--color-header-text);
-    padding: 16px 24px;
+    padding: 12px 20px;
     box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+    position: sticky;
+    top: 0;
+    z-index: 500;
+    height: var(--header-h);
 }
 
-.header-inner {
-    max-width: 1600px;
-    margin: 0 auto;
-}
+.header-inner { max-width: 1600px; margin: 0 auto; }
 
 .header-title-group {
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 12px;
 }
 
-.header-icon {
-    font-size: 36px;
-    line-height: 1;
-}
+.header-icon { font-size: 28px; line-height: 1; flex-shrink: 0; }
 
 .header-title {
     font-family: var(--font-serif);
-    font-size: 22px;
+    font-size: 19px;
     font-weight: 700;
-    letter-spacing: 0.04em;
     color: #f0e6d3;
     line-height: 1.2;
 }
 
 .header-subtitle {
-    font-size: 13px;
+    font-size: 11px;
     color: #a89b87;
     margin-top: 3px;
-    letter-spacing: 0.02em;
 }
 
 /* =============================================
-   APP LAYOUT — 橫式：左地圖 + 右列表
-                直式：上地圖 + 下列表
+   APP LAYOUT
    ============================================= */
+
+/* 橫式 (寬 > 700px)：左地圖＋右列表，佔滿剩餘視窗高度 */
 .app-layout {
     display: flex;
-    flex-direction: row;        /* 橫式預設 */
-    height: calc(100vh - 74px); /* 扣掉 header 高度 */
+    flex-direction: row;
+    height: calc(100vh - var(--header-h));
+    height: calc(100dvh - var(--header-h)); /* 行動版瀏覽器工具列補正 */
     overflow: hidden;
 }
 
@@ -93,18 +87,18 @@ body {
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    min-width: 0;
 }
 
 #map {
     flex: 1 1 0;
     width: 100%;
-    height: 100%;
-    min-height: 300px;
+    min-height: 0;
 }
 
-/* 照片列表 — 橫式時在右側 (直向捲動) */
+/* 右側列表 — 橫式直向捲動 */
 .list-section {
-    width: 280px;
+    width: 260px;
     flex-shrink: 0;
     background: var(--color-surface);
     border-left: 1px solid var(--color-border);
@@ -117,7 +111,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 12px 14px;
+    padding: 10px 12px;
     border-bottom: 1px solid var(--color-border);
     background: #f9f7f4;
     flex-shrink: 0;
@@ -125,20 +119,19 @@ body {
 
 .list-title {
     font-family: var(--font-serif);
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 700;
     color: var(--color-header-bg);
 }
 
 .list-count {
-    font-size: 12px;
+    font-size: 11px;
     color: var(--color-text-muted);
     background: var(--color-bg);
     padding: 2px 8px;
     border-radius: 20px;
 }
 
-/* 捲動區 (直向) */
 #photoList {
     flex: 1 1 0;
     overflow-y: auto;
@@ -150,45 +143,46 @@ body {
 }
 
 /* =============================================
-   直式螢幕 (Portrait) — 地圖上，列表在下
+   直式 / 手機
+   地圖在上，照片列表在下，整頁可滾動
    ============================================= */
-@media (orientation: portrait), (max-width: 700px) {
+@media (max-width: 700px), (orientation: portrait) {
     .app-layout {
         flex-direction: column;
-        height: auto;
-        min-height: calc(100vh - 74px);
+        height: auto;       /* 取消固定高度 */
+        overflow: visible;  /* 讓整頁可以滾動 */
     }
 
     .map-section {
-        height: 55vw;
-        min-height: 260px;
-        max-height: 420px;
+        height: 52vw;
+        min-height: 240px;
+        max-height: 400px;
         flex: none;
+        overflow: hidden;
     }
 
-    #map {
-        height: 100%;
-    }
+    #map { height: 100%; min-height: 0; }
 
     .list-section {
         width: 100%;
         border-left: none;
         border-top: 1px solid var(--color-border);
-        max-height: 45vh;
+        overflow: visible;  /* 不裁切 */
     }
 
-    /* 直式時列表改為橫向捲動 */
+    /* 直式：列表改橫向捲動 */
     #photoList {
         flex-direction: row;
         overflow-x: auto;
-        overflow-y: hidden;
+        overflow-y: visible;
         flex-wrap: nowrap;
-        padding: 10px;
+        height: auto;
+        padding-bottom: 14px; /* 給捲動條留空間 */
     }
 
     .photo-item {
-        flex-shrink: 0;
-        width: 140px !important;
+        flex-shrink: 0 !important;
+        width: 130px !important;
     }
 }
 
@@ -199,8 +193,8 @@ body {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: 8px;
-    padding: 10px 14px;
+    gap: 7px;
+    padding: 8px 12px;
     background: var(--color-surface);
     border-bottom: 1px solid var(--color-border);
     flex-shrink: 0;
@@ -220,28 +214,25 @@ body {
 }
 
 .filter-btn {
-    padding: 5px 12px;
+    padding: 4px 11px;
     border-radius: 20px;
     border: 1.5px solid var(--color-border);
     background: var(--color-surface);
     color: var(--color-text);
     font-family: var(--font-sans);
-    font-size: 13px;
+    font-size: 12px;
     cursor: pointer;
-    transition: all 0.18s ease;
+    transition: all 0.15s ease;
     white-space: nowrap;
     user-select: none;
 }
 
-.filter-btn:hover {
-    border-color: #888;
-    background: #f0ece6;
-}
+.filter-btn:hover { border-color: #888; background: #f0ece6; }
 
 .filter-btn.active {
-    background: var(--color-filter-active-bg);
-    color: var(--color-filter-active-text);
-    border-color: var(--color-filter-active-bg);
+    background: var(--color-header-bg);
+    color: #fff;
+    border-color: var(--color-header-bg);
     font-weight: 600;
 }
 
@@ -257,23 +248,16 @@ body {
     border-radius: var(--radius-md);
     padding: 8px;
     transition: transform 0.18s ease, box-shadow 0.18s ease;
-    cursor: default;
     width: 100%;
 }
 
-.photo-item:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-}
+.photo-item:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
 
-.photo-thumb-wrap {
-    position: relative;
-    width: 100%;
-}
+.photo-thumb-wrap { position: relative; width: 100%; }
 
 .thumbnail {
     width: 100%;
-    height: 90px;
+    height: 85px;
     object-fit: cover;
     border-radius: var(--radius-sm);
     display: block;
@@ -294,7 +278,7 @@ body {
 
 .photo-info {
     width: 100%;
-    margin-top: 7px;
+    margin-top: 6px;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -303,7 +287,7 @@ body {
 
 .photo-name {
     font-family: var(--font-serif);
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 700;
     color: var(--color-header-bg);
     line-height: 1.3;
@@ -334,7 +318,6 @@ body {
     padding: 2px 7px;
     border-radius: 10px;
     display: inline-block;
-    letter-spacing: 0.02em;
 }
 
 .tag-red    { background: #E63946; }
@@ -354,20 +337,14 @@ body {
     color: white;
     border-radius: var(--radius-sm);
     font-family: var(--font-sans);
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
     cursor: pointer;
     transition: background 0.15s;
-    letter-spacing: 0.03em;
 }
 
-.go-to-marker:hover {
-    background: #2d2d50;
-}
+.go-to-marker:hover { background: #2d2d50; }
 
-/* =============================================
-   捲動條美化
-   ============================================= */
 #photoList::-webkit-scrollbar { width: 5px; height: 5px; }
 #photoList::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
 #photoList::-webkit-scrollbar-thumb:hover { background: #aaa; }
@@ -382,48 +359,58 @@ body {
     text-align: center;
     padding: 10px;
     font-family: var(--font-sans);
-    font-size: 14px;
+    font-size: 13px;
     color: var(--color-text);
-    min-width: 200px;
+    min-width: 180px;
 }
 
 .popup-content strong {
     font-family: var(--font-serif);
-    font-size: 16px;
+    font-size: 15px;
     color: var(--color-header-bg);
     display: block;
     margin-bottom: 8px;
-    text-align: center;
 }
 
+/*
+   照片統一高度 200px，不裁切（contain）
+   直向照片：維持比例，旁邊留白
+   橫向照片：壓縮至同樣高度，點擊後用 modal 放大
+*/
 .popup-image {
-    height: auto;
+    height: 200px;
+    width: auto;
+    max-width: 280px;
+    object-fit: contain;
     border-radius: var(--radius-sm);
     margin-bottom: 8px;
+    cursor: zoom-in;
+    flex-shrink: 0;
+    background: #f0ece6;
 }
 
 .popup-scroll-container {
     display: flex;
     overflow-x: auto;
     gap: 8px;
-    width: 250px;
+    max-width: 280px;
     padding-bottom: 4px;
+    margin-bottom: 4px;
 }
 
 .popup-desc {
-    font-size: 13px;
+    font-size: 12px;
     color: var(--color-text-muted);
     margin: 4px 0;
     text-align: left;
 }
 
 .gps-link {
-    font-size: 12px;
+    font-size: 11px;
     color: #457B9D;
     text-decoration: none;
     display: block;
     margin-top: 4px;
-    text-align: center;
 }
 .gps-link:hover { text-decoration: underline; }
 
@@ -432,45 +419,46 @@ body {
     border-radius: var(--radius-md) !important;
     overflow: hidden;
 }
-.leaflet-popup-content {
-    margin: 0 !important;
-}
+.leaflet-popup-content { margin: 0 !important; }
 
 /* =============================================
-   Image Modal (修正：預設用 display:none，
-   開啟時改成 flex)
+   Image Modal 放大檢視
+   只有一個 display 宣告（display:none）
+   JS 加 .open class 才顯示（改成 display:flex）
    ============================================= */
 .modal {
-    display: none; /* 唯一的 display 宣告，JS 負責切換 */
+    display: none;          /* 預設隱藏 — 只有這一行，不重複 */
     position: fixed;
     z-index: 2000;
     inset: 0;
-    background: rgba(0, 0, 0, 0.85);
+    background: rgba(0, 0, 0, 0.88);
     justify-content: center;
     align-items: center;
 }
 
 .modal.open {
-    display: flex;
+    display: flex;          /* JS classList.add('open') 才觸發 */
 }
 
 .modal-content {
     max-width: 92vw;
     max-height: 90vh;
+    object-fit: contain;
     border-radius: var(--radius-md);
     box-shadow: 0 8px 40px rgba(0,0,0,0.5);
 }
 
 .close {
     position: absolute;
-    top: 18px;
-    right: 28px;
+    top: 16px;
+    right: 24px;
     color: white;
-    font-size: 38px;
+    font-size: 36px;
     font-weight: 300;
     cursor: pointer;
     line-height: 1;
     opacity: 0.8;
     transition: opacity 0.15s;
+    z-index: 2001;
 }
 .close:hover { opacity: 1; }
