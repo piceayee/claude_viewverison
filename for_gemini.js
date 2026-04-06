@@ -47,20 +47,16 @@ async function loadAllMarkersFromGitHub() {
     }
 }
 
-// 📌 更新照片數量顯示
+// 📌 更新數量顯示
 function updateCountDisplay() {
     const countEl = document.getElementById("photoCount");
     if (countEl) countEl.textContent = `共 ${allMarkerCount} 筆`;
 }
 
-// 📌 圖片直橫比調整
+// 📌 圖片比例調整（popup 用 CSS 控制，這裡只觸發 update）
 function updatePopupStyle(img) {
     const popup = img.closest('.leaflet-popup');
-    if (!popup) return;
-    const isPortrait = img.naturalHeight > img.naturalWidth;
-    img.style.width = isPortrait ? '220px' : '300px';
-    img.style.height = 'auto';
-    if (popup._leaflet_popup) popup._leaflet_popup.update();
+    if (popup && popup._leaflet_popup) popup._leaflet_popup.update();
 }
 
 // 📌 標籤顏色
@@ -83,11 +79,11 @@ function addMarkerToMap(markerData) {
     // Marker 顏色
     let markerColor = "blue";
     if (markerData.categories) {
-        if (markerData.categories.includes("花磚＆裝飾"))  markerColor = "red";
+        if (markerData.categories.includes("花磚＆裝飾"))      markerColor = "red";
         else if (markerData.categories.includes("洋樓＆房舍")) markerColor = "black";
-        else if (markerData.categories.includes("風獅爺"))  markerColor = "yellow";
-        else if (markerData.categories.includes("軍事"))    markerColor = "green";
-        else if (markerData.categories.includes("其他"))    markerColor = "blue";
+        else if (markerData.categories.includes("風獅爺"))     markerColor = "yellow";
+        else if (markerData.categories.includes("軍事"))       markerColor = "green";
+        else if (markerData.categories.includes("其他"))       markerColor = "blue";
     }
 
     // Popup 圖片 HTML
@@ -95,11 +91,12 @@ function addMarkerToMap(markerData) {
     if (isMulti) {
         imagesHtml = `<div class="popup-scroll-container">`;
         photos.forEach(p => {
-            imagesHtml += `<img src="${p.image}" class="popup-image" style="flex:0 0 auto; width:220px;" onload="updatePopupStyle(this);">`;
+            // data-src 存原始圖片 URL，供 modal 放大用
+            imagesHtml += `<img src="${p.image}" data-src="${p.image}" class="popup-image" onload="updatePopupStyle(this);">`;
         });
         imagesHtml += `</div><small style="color:#999;">⬅ 左右滑動查看 (${photos.length}張)</small>`;
     } else {
-        imagesHtml = `<img src="${markerData.image}" class="popup-image" onload="updatePopupStyle(this);">`;
+        imagesHtml = `<img src="${markerData.image}" data-src="${markerData.image}" class="popup-image" onload="updatePopupStyle(this);">`;
     }
 
     let popupContent = `
@@ -170,7 +167,7 @@ function addMarkerToMap(markerData) {
         document.getElementById("map").scrollIntoView({ behavior: "smooth" });
     });
 
-    // 點擊縮圖
+    // 點擊縮圖 → 飛到地圖位置並開啟 popup
     listItem.querySelector(".thumbnail").addEventListener("click", function () {
         map.flyTo([markerData.latitude + 0.0105, markerData.longitude], 15, { duration: 0.8 });
         marker.openPopup();
@@ -196,23 +193,16 @@ function filterMarkers() {
         } else if (selectedCategories.length > 0) {
             isVisible = selectedCategories.some(cat => markerCategories.includes(cat));
         } else {
-            isVisible = true; // 沒有選任何篩選器，全部顯示
+            isVisible = true;
         }
 
-        if (isVisible) {
-            marker.addTo(map);
-            visibleCount++;
-        } else {
-            map.removeLayer(marker);
-        }
+        if (isVisible) { marker.addTo(map); visibleCount++; }
+        else { map.removeLayer(marker); }
 
         let photoItem = document.querySelector(`.photo-item[data-id="${marker.id}"]`);
-        if (photoItem) {
-            photoItem.style.display = isVisible ? "flex" : "none";
-        }
+        if (photoItem) photoItem.style.display = isVisible ? "flex" : "none";
     });
 
-    // 更新數量
     const countEl = document.getElementById("photoCount");
     if (countEl) {
         countEl.textContent = selectedCategories.length > 0
@@ -229,38 +219,58 @@ window.onload = function () {
         attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    // 從 URL 參數跳轉
+    // URL 參數跳轉
     const urlParams = new URLSearchParams(window.location.search);
     const lat = parseFloat(urlParams.get('lat'));
     const lng = parseFloat(urlParams.get('lng'));
-    if (!isNaN(lat) && !isNaN(lng)) {
-        map.setView([lat, lng], 18);
-    }
+    if (!isNaN(lat) && !isNaN(lng)) map.setView([lat, lng], 18);
 
     // 載入資料
     loadAllMarkersFromGitHub();
 
-    // ===== Modal 處理 (修正：用 class 控制，不衝突) =====
+    // ===== Modal 放大檢視 =====
     const modal = document.getElementById("imageModal");
     const fullImage = document.getElementById("fullImage");
     const closeBtn = document.querySelector(".close");
 
-    // 點擊 Popup 圖片放大
-    document.addEventListener("click", function (event) {
-        const target = event.target;
-        if (target.tagName === "IMG" && target.closest(".leaflet-popup-content")) {
-            fullImage.src = target.src;
-            modal.classList.add("open");
+    // 開啟 modal 的函式
+    function openModal(src) {
+        fullImage.src = src;
+        modal.classList.add("open");
+        document.body.style.overflow = "hidden"; // 背景禁止滾動
+    }
+
+    // 關閉 modal 的函式
+    function closeModal() {
+        modal.classList.remove("open");
+        document.body.style.overflow = "";
+    }
+
+    // 點擊 popup 裡的 .popup-image 圖片 → 放大
+    // 用事件委派，即使 popup 是動態新增的也能攔截
+    document.addEventListener("click", function (e) {
+        const target = e.target;
+        if (target.classList.contains("popup-image")) {
+            // 優先用 data-src（原始尺寸），沒有就用 src
+            const src = target.dataset.src || target.src;
+            openModal(src);
         }
     });
 
-    // 關閉 Modal
-    if (closeBtn) closeBtn.addEventListener("click", () => modal.classList.remove("open"));
-    if (modal) modal.addEventListener("click", (e) => {
-        if (e.target === modal) modal.classList.remove("open");
+    // 關閉按鈕
+    if (closeBtn) closeBtn.addEventListener("click", closeModal);
+
+    // 點擊背景關閉
+    if (modal) modal.addEventListener("click", function (e) {
+        if (e.target === modal) closeModal();
     });
 
-    // ===== 篩選按鈕 (toggle active class) =====
+    // ESC 鍵關閉
+    document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") closeModal();
+    });
+
+    // ===== 篩選按鈕 =====
     document.querySelectorAll(".filter-btn").forEach(btn => {
         btn.addEventListener("click", function () {
             this.classList.toggle("active");
@@ -268,7 +278,7 @@ window.onload = function () {
         });
     });
 
-    // 隱藏按鈕功能 (保留原有功能)
+    // 隱藏按鈕功能
     const clearBtn = document.getElementById("clearMarkers");
     const reloadBtn = document.getElementById("reloadGitHubData");
     if (clearBtn) clearBtn.addEventListener("click", function () {
