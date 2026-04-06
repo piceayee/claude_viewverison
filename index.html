@@ -25,7 +25,7 @@
 </head>
 <body>
 
-    <!-- ===== HEADER ===== -->
+    <!-- HEADER -->
     <header class="site-header">
         <div class="header-inner">
             <div class="header-title-group">
@@ -38,11 +38,12 @@
         </div>
     </header>
 
-    <!-- ===== MAIN LAYOUT ===== -->
+    <!-- MAIN LAYOUT -->
     <div class="app-layout">
 
         <!-- 地圖區塊 -->
         <div class="map-section">
+
             <!-- 篩選器 -->
             <div class="filter-bar">
                 <span class="filter-label">篩選類別：</span>
@@ -58,7 +59,7 @@
 
             <div id="map"></div>
 
-            <!-- 隱藏的功能按鈕 -->
+            <!-- 隱藏的功能按鈕（保留功能） -->
             <button id="clearMarkers" style="display:none;">清除所有標記</button>
             <button id="reloadGitHubData" style="display:none;">重新載入 GitHub JSON</button>
         </div>
@@ -74,10 +75,10 @@
 
     </div>
 
-    <!-- ===== IMAGE MODAL ===== -->
-    <div id="imageModal" class="modal" style="display:none;">
+    <!-- IMAGE MODAL 放大檢視 -->
+    <div id="imageModal" class="modal">
         <span class="close">&times;</span>
-        <img class="modal-content" id="fullImage">
+        <img class="modal-content" id="fullImage" alt="放大檢視">
     </div>
 
     <script src="for_gemini.js"></script>
