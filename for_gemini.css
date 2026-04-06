@@ -29,6 +29,7 @@ html, body {
     background: var(--color-bg);
     color: var(--color-text);
     height: 100%;
+    overflow: hidden;
 }
 
 /* =============================================
@@ -149,8 +150,8 @@ html, body {
 @media (max-width: 700px), (orientation: portrait) {
     .app-layout {
         flex-direction: column;
-        height: auto;       /* 取消固定高度 */
-        overflow: visible;  /* 讓整頁可以滾動 */
+        height: calc(100dvh - var(--header-h)); /* 鎖定高度，不讓頁面被撐破 */
+        overflow: hidden; /* 確保不出現外層捲軸 */
     }
 
     .map-section {
@@ -165,9 +166,10 @@ html, body {
 
     .list-section {
         width: 100%;
+        flex: 1; /* 讓列表區塊自動佔滿剩餘空間 */
         border-left: none;
         border-top: 1px solid var(--color-border);
-        overflow: visible;  /* 不裁切 */
+        overflow: hidden; /* 讓內部 photoList 自己滾動 */
     }
 
     /* 直式：列表改橫向捲動 */
@@ -352,36 +354,51 @@ html, body {
 /* =============================================
    Leaflet Popup
    ============================================= */
+   .leaflet-popup-content-wrapper {
+    /* 保持你原本的 380px 等設定 */
+    width: 380px !important;
+    max-width: 90vw;
+    padding: 0 !important;
+    border-radius: var(--radius-md) !important;
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+}
+
+.leaflet-popup-content { 
+    margin: 0 !important; /* 確保徹底移除 Leaflet 內建的底邊距 */
+    width: 100% !important;
+}
+
 .popup-content {
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
-    padding: 10px;
+    padding: 15px;             /* 增加內距讓內容不擁擠 */
     font-family: var(--font-sans);
-    font-size: 13px;
-    color: var(--color-text);
-    min-width: 180px;
+    font-size: 14px;           /* 字體略微放大 */
+    color: var(--text);
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .popup-content strong {
     font-family: var(--font-serif);
-    font-size: 15px;
+    font-size: 18px;           /* 標題放大 */
     color: var(--color-header-bg);
     display: block;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
 }
-
 /*
    照片統一高度 200px，不裁切（contain）
    直向照片：維持比例，旁邊留白
    橫向照片：壓縮至同樣高度，點擊後用 modal 放大
 */
 .popup-image {
-    height: 200px;
+    height: auto;
     width: auto;
-    max-width: 280px;
-    object-fit: contain;
+    max-width: 380px;
+    max-height: 380px;
     border-radius: var(--radius-sm);
     margin-bottom: 8px;
     cursor: zoom-in;
@@ -414,11 +431,6 @@ html, body {
 }
 .gps-link:hover { text-decoration: underline; }
 
-.leaflet-popup-content-wrapper {
-    padding: 0 !important;
-    border-radius: var(--radius-md) !important;
-    overflow: hidden;
-}
 .leaflet-popup-content { margin: 0 !important; }
 
 /* =============================================
