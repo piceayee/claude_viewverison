@@ -147,47 +147,119 @@ html, body {
    直式 / 手機
    地圖在上，照片列表在下，整頁可滾動
    ============================================= */
-@media (max-width: 700px), (orientation: portrait) {
+/* =============================================
+   直式 / 手機：徹底壓縮非必要空間
+   ============================================= */
+   @media (max-width: 700px), (orientation: portrait) {
+    /* 1. 壓縮全域變數 */
+    :root { 
+        --header-h: 45px; /* 標題列縮小 */
+    }
+
     .app-layout {
         flex-direction: column;
-        height: 100dvh;/* 鎖定高度，不讓頁面被撐破 */
-        overflow: hidden; /* 確保不出現外層捲軸 */
+        height: 100dvh;
+        overflow: hidden;
     }
 
+    /* 2. 地圖佔比（如果你覺得地圖太高可以調小這個 60vh） */
     .map-section {
-        /* 調整：增加地圖高度，讓彈窗有空間顯示 */
-        height: 65vh; 
-        min-height: 350px;
-        max-height: none; /* 移除最大高度限制 */
+        height: 50vh; 
         flex: none;
         position: relative;
-        z-index: 10; /* 確保地圖層級高於列表，彈窗才不會被遮住 */
+        z-index: 10;
     }
 
-    #map { height: 100% }
+    /* 3. 標題列文字縮小並隱藏副標題 */
+    .header-title { font-size: 15px; }
+    .header-subtitle { display: none; }
+    .header-icon { font-size: 20px; }
 
+    /* 4. 關鍵：將篩選列與照片列表清單放在同一個垂直容器內，並壓縮篩選列 */
     .list-section {
         width: 100%;
-        flex: 1; /* 佔據剩餘底部空間 */
-        border-top: 1px solid var(--color-border);
-        background: var(--color-surface);
+        flex: 1; /* 讓剩下的空間全部給列表區 */
+        display: flex;
+        flex-direction: column;
         z-index: 5;
         overflow: hidden;
     }
 
-    /* 直式：列表改橫向捲動 */
-    #photoList {
-        flex-direction: row;
+    /* 壓縮「照片列表」那個標題橫條 */
+    .list-header {
+        padding: 4px 12px;
+        background: #eee;
+    }
+    .list-title { font-size: 12px; }
+
+    /* 5. 讓篩選列可以橫向滑動，不佔據第二行 */
+    .filter-bar {
+        padding: 5px 10px;
+        flex-wrap: nowrap; /* 不換行 */
         overflow-x: auto;
-        overflow-y: hidden;
-        height: 100%;
-        padding: 8px;
+        -webkit-overflow-scrolling: touch;
         gap: 8px;
     }
+    .filter-label { display: none; } /* 隱藏「篩選類別」四個字 */
+    .filter-buttons {
+        flex-wrap: nowrap;
+        gap: 6px;
+    }
+    .filter-btn {
+        padding: 3px 10px;
+        font-size: 11px;
+    }
 
+    /* 6. 照片列表調整 */
+    #photoList {
+        flex-direction: row; /* 橫向捲動 */
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding: 8px;
+        gap: 10px;
+        align-items: flex-start;
+        height: 100%; /* 確保撐滿 list-section */
+    }
+
+    /* 7. 單個照片卡片：保留備註但限制高度 */
     .photo-item {
-        width: 110px !important; /* 稍微縮小一點 */
+        width: 160px !important; /* 寬度加寬一點，好容納備註文字 */
         flex-shrink: 0 !important;
+        height: calc(100% - 10px); /* 扣掉 gap，撐滿剩餘高度 */
+        padding: 6px;
+        justify-content: flex-start;
+        overflow: hidden;
+    }
+
+    .thumbnail {
+        height: 90px; /* 固定照片高度 */
+        width: 100%;
+    }
+
+    .photo-info {
+        margin-top: 4px;
+        gap: 2px;
+    }
+
+    .photo-name {
+        font-size: 11px;
+        -webkit-line-clamp: 1; /* 標題只留一行 */
+    }
+
+    .photo-desc {
+        font-size: 10px;
+        line-height: 1.2;
+        -webkit-line-clamp: 2; /* 備註留兩行 */
+    }
+
+    /* 手機版隱藏前往地圖按鈕（因為點地圖標記本來就會跳，且卡片已經在最下面了） */
+    .go-to-marker {
+        display: none;
+    }
+    
+    /* 隱藏分類標籤以免太亂 */
+    .category-tags {
+        display: none;
     }
 }
 
@@ -214,7 +286,6 @@ html, body {
 
 .filter-buttons {
     display: flex;
-    flex-wrap: wrap;
     gap: 6px;
 }
 
