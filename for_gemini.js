@@ -5,7 +5,8 @@ let allMarkerCount = 0;
 
 // 📌 JSON 檔案 URL 列表
 const jsonUrls = [
-    "https://piceayee.github.io/jsonhome/data/0319.json"
+    "https://piceayee.github.io/jsonhome/data/0319.json",
+        "https://piceayee.github.io/jsonhome/data/photoMapBackup (6).json"
 ];
 
 // 📌 載入所有標記
